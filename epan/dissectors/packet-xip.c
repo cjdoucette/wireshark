@@ -27,6 +27,7 @@
 
 /* Next dissector handles. */
 static dissector_handle_t data_handle;
+static dissector_handle_t xia_serval_handle;
 
 #define XIPH_MIN_LEN		36
 #define NODE_SIZE		28
@@ -124,6 +125,7 @@ display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	tvbuff_t *next_tvb;
 
+	guint32 sink_node;
 	guint16 payload_len;
 	guint8 last_node, next_header, next_header_offset;
 
@@ -201,6 +203,17 @@ display_xip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	next_header_offset = XIPH_DSTD + NODE_SIZE *
 		(num_dst_nodes + num_src_nodes);
+
+	/* Add Serval header and extension headers, if necessary. */
+	sink_node = tvb_get_ntohl(tvb, XIPH_DSTD +
+		(num_dst_nodes - 1) * NODE_SIZE);
+	if (sink_node == XIDTYPE_FLOWID || sink_node == XIDTYPE_SRVCID) {
+		guint8 xsh_len = tvb_get_guint8(tvb, next_header_offset) << 2;
+		next_tvb = tvb_new_subset(tvb, next_header_offset,
+			xsh_len, xsh_len);
+		next_header_offset += call_dissector(xia_serval_handle,
+			next_tvb, pinfo, tree);
+	}
 
 	next_header = tvb_get_guint8(tvb, XIPH_NXTH);
 	switch (next_header) {
@@ -350,6 +363,7 @@ proto_reg_handoff_xip(void)
 	xip_handle = new_create_dissector_handle(dissect_xip, proto_xip);
 	dissector_add_uint("ethertype", ETHERTYPE_XIP, xip_handle);
 
+	xia_serval_handle = find_dissector("xiaserval");
 	data_handle = find_dissector("data");
 }
 
