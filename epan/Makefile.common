@@ -101,7 +101,8 @@ LIBWIRESHARK_SRC =		\
 	tvbuff.c		\
 	uat.c			\
 	value_string.c		\
-	xdlc.c
+	xdlc.c			\
+	xia.c
 
 #
 # We distribute Lemon and rdps.py with Wireshark, so we don't distribute the

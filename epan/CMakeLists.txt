@@ -1422,6 +1422,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-x29.c
 	dissectors/packet-xcsl.c
 	dissectors/packet-xdmcp.c
+	dissectors/packet-xip.c
 	dissectors/packet-xmcp.c
 	dissectors/packet-xml.c
 	dissectors/packet-xmpp-conference.c
@@ -1649,6 +1650,7 @@ set(LIBWIRESHARK_FILES
 	uat.c
 	value_string.c
 	xdlc.c
+	xia.c
 )
 
 set(LIBWIRESHARK_CLEAN_FILES
